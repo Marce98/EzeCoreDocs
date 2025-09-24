@@ -1,0 +1,245 @@
+# Doc-Sync-Specialist Agent Configuration
+# Discovers and extracts documentation from codebases
+
+agent:
+  name: doc-sync-specialist
+  version: 1.0.0
+  description: Scans codebases to discover, extract, and synchronize documentation
+  type: discovery_specialist
+
+capabilities:
+  - code_scanning
+  - documentation_extraction
+  - pattern_recognition
+  - gap_analysis
+  - inline_doc_parsing
+  - dependency_mapping
+
+responsibilities:
+  - Scan repositories for documentation
+  - Extract inline code comments
+  - Identify undocumented code
+  - Map documentation to code
+  - Generate documentation reports
+  - Track documentation coverage
+
+scanning:
+  targets:
+    - README files
+    - Markdown documents
+    - Code comments
+    - JSDoc/TSDoc
+    - Python docstrings
+    - API annotations
+    - Configuration files
+    - Test descriptions
+
+  patterns:
+    readme:
+      - "README*.md"
+      - "readme*.md"
+      - "*.README"
+
+    documentation:
+      - "docs/**/*.md"
+      - "documentation/**/*.md"
+      - "*.md"
+
+    code_comments:
+      javascript:
+        - "/**....*/"  # JSDoc
+        - "//.*"       # Single line
+      python:
+        - '"""..."""'  # Docstrings
+        - "#.*"        # Comments
+      java:
+        - "/**....*/"  # Javadoc
+        - "//.*"       # Single line
+
+extraction:
+  inline_documentation:
+    javascript:
+      patterns:
+        - JSDoc
+        - TSDoc
+        - Flow annotations
+      extract:
+        - function_descriptions
+        - parameter_types
+        - return_types
+        - examples
+
+    python:
+      patterns:
+        - Google docstrings
+        - Sphinx docstrings
+        - NumPy docstrings
+      extract:
+        - module_docs
+        - class_docs
+        - function_docs
+        - type_hints
+
+    api_endpoints:
+      patterns:
+        - REST annotations
+        - GraphQL schemas
+        - OpenAPI specs
+      extract:
+        - endpoint_paths
+        - methods
+        - parameters
+        - responses
+
+discovery:
+  undocumented_detection:
+    criteria:
+      - Public functions without docs
+      - API endpoints without specs
+      - Complex logic without comments
+      - Configuration without examples
+      - Missing README sections
+
+  coverage_analysis:
+    metrics:
+      - Documentation percentage
+      - Comment density
+      - API coverage
+      - Example availability
+      - Test documentation
+
+  gap_identification:
+    check_for:
+      - Missing setup instructions
+      - Undocumented dependencies
+      - Missing API documentation
+      - No architecture overview
+      - Lacking examples
+
+transformation:
+  output_formats:
+    markdown:
+      template: standard
+      include_metadata: true
+
+    json:
+      schema: documentation_schema.json
+      include_source: true
+
+    html:
+      template: documentation.html
+      styling: company_theme
+
+  content_processing:
+    - Extract and clean text
+    - Format code examples
+    - Generate table of contents
+    - Create cross-references
+    - Add metadata tags
+
+synchronization:
+  mapping:
+    maintain:
+      - Code to documentation links
+      - Documentation dependencies
+      - Version correlations
+      - Coverage tracking
+
+  update_detection:
+    monitor:
+      - Code changes
+      - Documentation updates
+      - API modifications
+      - Schema changes
+
+    triggers:
+      - Pull request opened
+      - Code committed
+      - Release tagged
+      - Documentation edited
+
+reporting:
+  documentation_report:
+    sections:
+      - Executive summary
+      - Coverage statistics
+      - Gap analysis
+      - Recommendations
+      - Action items
+
+    metrics:
+      - Total documentation found
+      - Documentation coverage %
+      - Undocumented items
+      - Quality score
+      - Update frequency
+
+  gap_report:
+    format: markdown
+    include:
+      - Missing documentation
+      - Outdated content
+      - Incomplete sections
+      - Priority recommendations
+
+automation:
+  scheduled_scans:
+    frequency: daily
+    scope: all_repositories
+    report: email_summary
+
+  continuous_monitoring:
+    enabled: true
+    real_time_updates: true
+    notification_threshold: significant_changes
+
+integration:
+  code_analysis_tools:
+    - ESLint
+    - Pylint
+    - SonarQube
+    - CodeClimate
+
+  documentation_tools:
+    - JSDoc
+    - Sphinx
+    - Doxygen
+    - TypeDoc
+
+quality_checks:
+  validation:
+    - Syntax correctness
+    - Link validity
+    - Example functionality
+    - Format compliance
+
+  scoring:
+    factors:
+      - Completeness: 40%
+      - Clarity: 30%
+      - Examples: 20%
+      - Up-to-date: 10%
+
+error_handling:
+  parsing_errors:
+    log: true
+    continue: true
+    report: summary
+
+  extraction_failures:
+    retry: true
+    fallback: manual_review
+
+monitoring:
+  metrics:
+    - Scan performance
+    - Extraction accuracy
+    - Coverage trends
+    - Gap reduction
+    - Update frequency
+
+  alerts:
+    - Coverage below threshold
+    - Large documentation gaps
+    - Extraction failures
+    - Outdated documentation

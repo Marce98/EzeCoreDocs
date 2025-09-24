@@ -1,0 +1,187 @@
+# Doc-Master Agent Configuration
+# Main orchestrator for all documentation tasks
+
+agent:
+  name: doc-master
+  version: 1.0.0
+  description: Documentation orchestrator that handles all documentation queries and commands
+  type: orchestrator
+
+capabilities:
+  - documentation_retrieval
+  - documentation_creation
+  - documentation_validation
+  - task_delegation
+  - project_management
+
+dependencies:
+  agents:
+    - doc-repo-manager
+    - doc-sync-specialist
+    - technical-writer
+    - docs-standards-enforcer
+
+commands:
+  init-project:
+    description: Initialize documentation for a new project
+    parameters:
+      - name: project_name
+        type: string
+        required: true
+      - name: template
+        type: string
+        default: standard
+    workflow:
+      - validate_project_name
+      - create_project_structure
+      - copy_templates
+      - scan_existing_docs
+      - generate_initial_docs
+      - validate_docs
+      - commit_changes
+
+  update:
+    description: Update documentation for existing project
+    parameters:
+      - name: project_name
+        type: string
+        required: true
+      - name: scope
+        type: string
+        default: all
+        options: [all, api, architecture, readme, specific]
+    workflow:
+      - scan_for_changes
+      - identify_outdated_docs
+      - update_documentation
+      - validate_changes
+      - create_pull_request
+
+  discover:
+    description: Discover and extract documentation from codebases
+    parameters:
+      - name: path
+        type: string
+        default: .
+      - name: recursive
+        type: boolean
+        default: true
+    workflow:
+      - scan_repositories
+      - extract_inline_docs
+      - identify_undocumented_areas
+      - generate_report
+      - suggest_improvements
+
+  validate:
+    description: Validate documentation against standards
+    parameters:
+      - name: project_name
+        type: string
+        required: true
+    workflow:
+      - check_completeness
+      - validate_formatting
+      - verify_links
+      - check_examples
+      - generate_validation_report
+
+  search:
+    description: Search across all documentation
+    parameters:
+      - name: query
+        type: string
+        required: true
+      - name: scope
+        type: string
+        default: all
+    workflow:
+      - search_indexed_docs
+      - rank_results
+      - return_matches
+
+configuration:
+  storage:
+    type: github
+    repository: company-docs
+    branch: main
+
+  indexing:
+    enabled: true
+    update_frequency: daily
+
+  validation:
+    strict_mode: true
+    auto_fix: false
+
+  templates:
+    location: /standards/templates
+
+  cache:
+    enabled: true
+    ttl: 3600
+
+prompts:
+  system: |
+    You are doc-master, the main documentation orchestrator.
+    Your role is to:
+    1. Handle all documentation-related queries
+    2. Delegate tasks to specialized agents
+    3. Ensure documentation quality and consistency
+    4. Maintain the documentation index
+    5. Coordinate between different documentation agents
+
+    Always:
+    - Follow company documentation standards
+    - Ensure completeness and accuracy
+    - Maintain consistent formatting
+    - Keep documentation up-to-date
+    - Provide helpful responses to queries
+
+  task_delegation:
+    doc-repo-manager: |
+      Delegate to doc-repo-manager when:
+      - Managing GitHub repository operations
+      - Handling version control
+      - Creating branches or pull requests
+      - Managing documentation storage
+
+    doc-sync-specialist: |
+      Delegate to doc-sync-specialist when:
+      - Scanning codebases for documentation
+      - Extracting inline documentation
+      - Discovering undocumented code
+      - Synchronizing docs with code
+
+    technical-writer: |
+      Delegate to technical-writer when:
+      - Creating new documentation content
+      - Rewriting or improving existing docs
+      - Ensuring clarity and readability
+      - Following writing best practices
+
+    docs-standards-enforcer: |
+      Delegate to docs-standards-enforcer when:
+      - Validating documentation compliance
+      - Checking formatting standards
+      - Ensuring completeness
+      - Reviewing quality
+
+error_handling:
+  retry_attempts: 3
+  fallback_behavior: report_to_user
+  logging_level: info
+
+monitoring:
+  metrics:
+    - documentation_coverage
+    - update_frequency
+    - validation_pass_rate
+    - search_performance
+    - user_satisfaction
+
+  alerts:
+    - outdated_documentation
+    - validation_failures
+    - missing_documentation
+    - broken_links
