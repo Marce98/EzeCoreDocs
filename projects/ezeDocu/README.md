@@ -37,6 +37,12 @@ This documentation contains **recommended standards** for development within the
    - User pool configurations
    - Identity federation guidelines
 
+7. **[AppSync Architecture Standards](./standards/07-appsync-architecture.md)**
+   - GraphQL API design principles
+   - One AppSync API per project pattern
+   - Resolver configuration and authentication
+   - Real-time subscriptions and performance optimization
+
 ### Templates
 - **[Exception Documentation Template](./templates/exception-template.md)** - Use this when deviating from standards
 
@@ -53,10 +59,11 @@ This documentation contains **recommended standards** for development within the
 
 ### Key Principles
 1. **Multi-platform, Multi-tenant, Multi-location** architecture
-2. **AWS Cognito** for authentication (preferred)
-3. **DynamoDB single table** design where applicable
-4. **On-demand, minimalistic** resource provisioning
-5. **No fallback mechanisms** unless explicitly required
+2. **AppSync GraphQL** as primary API layer for client-facing applications
+3. **AWS Cognito** for authentication (preferred)
+4. **DynamoDB single table** design where applicable
+5. **On-demand, minimalistic** resource provisioning
+6. **No fallback mechanisms** unless explicitly required
 
 ## Implementation Guidelines
 - New projects should follow these standards as baseline

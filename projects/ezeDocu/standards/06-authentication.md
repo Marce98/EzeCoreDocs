@@ -328,6 +328,196 @@ function socialLogin(provider) {
 }
 ```
 
+## AppSync GraphQL Integration
+
+### AppSync Authentication Configuration
+AppSync supports multiple authentication types and is our preferred API layer for client-facing applications. Configure with Cognito User Pools as the primary authentication method.
+
+```yaml
+GraphQLApi:
+  Type: AWS::AppSync::GraphQLApi
+  Properties:
+    Name: !Sub "${ProjectName}-GraphQL-API-${Environment}"
+    AuthenticationType: AMAZON_COGNITO_USER_POOLS
+    UserPoolConfig:
+      UserPoolId: !Ref CognitoUserPool
+      AwsRegion: !Ref AWS::Region
+      DefaultAction: ALLOW
+    AdditionalAuthenticationProviders:
+      - AuthenticationType: AWS_IAM
+        DefaultAction: ALLOW
+      - AuthenticationType: API_KEY
+        DefaultAction: ALLOW
+```
+
+### Multi-Auth Configuration
+```graphql
+# Schema-level authentication
+schema @aws_cognito_user_pools @aws_iam @aws_api_key {
+  query: Query
+  mutation: Mutation
+  subscription: Subscription
+}
+
+# Type-level authentication
+type User @aws_cognito_user_pools {
+  id: ID!
+  email: AWSEmail!
+  name: String!
+  # Sensitive fields require specific permissions
+  personalData: PersonalData @aws_auth(cognito_groups: ["admin", "owner"])
+}
+
+# Field-level authentication
+type Query {
+  # Public data accessible with API key
+  getPublicContent: [Content] @aws_api_key
+
+  # User-specific data requires authentication
+  getCurrentUser: User @aws_cognito_user_pools
+
+  # Admin data requires group membership
+  getAllUsers: [User] @aws_auth(cognito_groups: ["admin"])
+}
+```
+
+### Authorization in Resolvers
+```vtl
+## Cognito User Pool Authorization Template
+## Check if user is authenticated
+#if(!$context.identity.sub)
+  $util.unauthorized()
+#end
+
+## Check user ownership (for user-specific resources)
+#if($context.identity.sub != $context.source.userId)
+  $util.unauthorized()
+#end
+
+## Check group membership
+#set($userGroups = $context.identity.claims.get("cognito:groups"))
+#set($hasAdminRole = false)
+#if($userGroups)
+  #foreach($group in $userGroups)
+    #if($group == "admin")
+      #set($hasAdminRole = true)
+    #end
+  #end
+#end
+
+#if(!$hasAdminRole)
+  $util.unauthorized()
+#end
+
+## Extract tenant context from custom attributes
+#set($platform = $context.identity.claims.get("custom:platform"))
+#set($company = $context.identity.claims.get("custom:company"))
+#set($location = $context.identity.claims.get("custom:location"))
+
+## Add tenant context to Lambda payload
+{
+  "version": "2018-05-29",
+  "operation": "Invoke",
+  "payload": {
+    "field": "$context.info.fieldName",
+    "arguments": $util.toJson($context.arguments),
+    "identity": {
+      "sub": "$context.identity.sub",
+      "username": "$context.identity.username",
+      "claims": $util.toJson($context.identity.claims)
+    },
+    "tenant": {
+      "platform": "$platform",
+      "company": "$company",
+      "location": "$location"
+    }
+  }
+}
+```
+
+### Subscription Authorization
+```graphql
+type Subscription {
+  # User can only subscribe to their own updates
+  onUserUpdated(userId: ID!): User
+    @aws_subscribe(mutations: ["updateUser"])
+    @aws_auth(rule: {
+      allow: owner,
+      ownerField: "userId"
+    })
+
+  # Group-based subscription access
+  onOrderCreated: Order
+    @aws_subscribe(mutations: ["createOrder"])
+    @aws_auth(cognito_groups: ["managers", "admins"])
+}
+```
+
+### Token Validation in Lambda Resolvers
+```javascript
+// Example Lambda resolver with Cognito token validation
+const jwt = require('jsonwebtoken');
+const jwksClient = require('jwks-rsa');
+
+const client = jwksClient({
+  jwksUri: `https://cognito-idp.${region}.amazonaws.com/${userPoolId}/.well-known/jwks.json`
+});
+
+function getKey(header, callback) {
+  client.getSigningKey(header.kid, (err, key) => {
+    const signingKey = key.publicKey || key.rsaPublicKey;
+    callback(null, signingKey);
+  });
+}
+
+exports.handler = async (event) => {
+  try {
+    // AppSync provides validated identity in event.identity
+    const { sub, username, claims } = event.identity;
+
+    // Extract tenant context
+    const tenantContext = {
+      platform: claims['custom:platform'],
+      company: claims['custom:company'],
+      location: claims['custom:location'],
+      groups: claims['cognito:groups'] || []
+    };
+
+    // Process GraphQL operation
+    const result = await processGraphQLOperation(
+      event.field,
+      event.arguments,
+      { sub, username, tenantContext }
+    );
+
+    return result;
+  } catch (error) {
+    throw new Error(`Authentication failed: ${error.message}`);
+  }
+};
+```
+
+### Rate Limiting with Cognito Groups
+```vtl
+## Rate limiting based on user groups
+#set($userGroups = $context.identity.claims.get("cognito:groups"))
+#set($rateLimit = 100)  ## Default rate limit
+
+#if($userGroups.contains("premium"))
+  #set($rateLimit = 1000)  ## Higher limit for premium users
+#elseif($userGroups.contains("admin"))
+  #set($rateLimit = 5000)  ## Highest limit for admins
+#end
+
+## Apply rate limiting logic
+## (Implementation depends on your rate limiting strategy)
+```
+
+### Cross-Reference with Authentication Standards
+- User Pool configuration follows standards defined in [06-authentication.md](./06-authentication.md)
+- Multi-tenancy patterns align with [04-multi-tenancy.md](./04-multi-tenancy.md)
+- AppSync architecture details in [07-appsync-architecture.md](./07-appsync-architecture.md)
+
 ## Multi-Factor Authentication (MFA)
 
 ### MFA Configuration
