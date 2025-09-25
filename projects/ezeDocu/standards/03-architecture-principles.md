@@ -14,10 +14,10 @@ Our architecture philosophy prioritizes simplicity, cost-effectiveness, and rapi
 - Measure actual usage patterns before scaling
 
 **Example Progression**:
-1. **Prototype**: Lambda + DynamoDB on-demand + AppSync GraphQL
-2. **Validated**: Add authentication, basic monitoring, error handling
-3. **Production**: Add caching, provisioned capacity, subscriptions
-4. **Scale**: Multi-region, advanced monitoring, federation
+1. **Prototype**: Lambda + DynamoDB on-demand
+2. **Validated**: Add API Gateway, basic monitoring
+3. **Production**: Add caching, provisioned capacity
+4. **Scale**: Multi-region, advanced monitoring
 
 ### 2. Cost Optimization First
 **Every architectural decision must consider cost**
@@ -25,8 +25,7 @@ Our architecture philosophy prioritizes simplicity, cost-effectiveness, and rapi
 #### Use On-Demand/Serverless
 - **Lambda**: Pay only for execution time
 - **DynamoDB**: On-demand billing for unpredictable workloads
-- **AppSync**: Pay per request and operation
-- **API Gateway**: Pay per request (for REST endpoints)
+- **API Gateway**: Pay per request
 - **S3**: Pay for storage used
 
 #### Minimize Fixed Costs
@@ -95,10 +94,9 @@ Priority Order:
 ### Integration Patterns
 
 #### API Design
-- **AppSync GraphQL** as primary API layer for client-facing applications
-- One AppSync API per project principle
-- REST for simple internal services and webhook endpoints
+- REST over GraphQL for simplicity
 - Direct service integration when possible
+- API Gateway for public endpoints
 - Lambda function URLs for internal APIs
 
 #### Event-Driven Architecture
@@ -114,7 +112,7 @@ Priority Order:
 Resources:
   - Lambda: On-demand, minimal memory
   - DynamoDB: On-demand billing
-  - AppSync: Basic GraphQL API with Lambda resolvers
+  - API Gateway: Basic setup
   - Monitoring: CloudWatch basics only
   - Security: IAM roles, basic policies
 ```

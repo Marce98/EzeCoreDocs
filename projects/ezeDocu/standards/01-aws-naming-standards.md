@@ -81,33 +81,13 @@ Resources dedicated to specific applications use the application name as prefix.
 - `vendoloop-inventory-images-us-east-1`
 - `vendoloop-backups-daily-001`
 
-### 7. GraphQL APIs (AppSync)
-**Pattern**: `[Prefix]-GraphQL-API-[Environment]`
-- `EzeCore-Analytics-GraphQL-API-Prod`
-- `vendoloop-GraphQL-API-Dev`
-- `vendoloop-GraphQL-API-Prod`
-
-#### AppSync Resolvers
-**Pattern**: `[TypeName][FieldName]Resolver`
-- `QueryGetUserResolver`
-- `MutationCreateOrderResolver`
-- `UserOrdersResolver`
-
-#### AppSync Data Sources
-**Pattern**: `[ProjectName][ServiceType]DataSource`
-- `vendoloopLambdaDataSource`
-- `vendoloopDynamoDataSource`
-- `EzeCoreAnalyticsLambdaDataSource`
-
-### 8. API Gateway (REST)
+### 7. API Gateway
 **Pattern**: `[Prefix]-[Access]-API-[Version]`
 - `EzeCore-Internal-API-v1`
 - `vendoloop-Public-API-v2`
 - `vendoloop-Partner-API-v1`
 
-> **Note**: AppSync GraphQL is preferred for client-facing APIs. Use API Gateway REST for webhooks, legacy integrations, or simple internal services.
-
-### 9. CloudFormation Stacks
+### 8. CloudFormation Stacks
 **Pattern**: `[Prefix]-Stack-[Component]-[Environment]`
 - `EzeCore-Stack-Infrastructure-Prod`
 - `vendoloop-Stack-Frontend-Dev`
